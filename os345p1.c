@@ -77,7 +77,6 @@ int P1_main(int argc, char* argv[])
 
 	sigAction(mySigIntHandler, mySIGINT);
 
-
 	while (1)
 	{
 		// output prompt
@@ -86,7 +85,6 @@ int P1_main(int argc, char* argv[])
 
 		SEM_WAIT(inBufferReady);			// wait for input buffer semaphore
 		if (!inBuffer[0]) continue;		// ignore blank lines
-		// printf("%s", inBuffer);
 
 		SWAP										// do context switch
 
@@ -99,14 +97,37 @@ int P1_main(int argc, char* argv[])
 			// init arguments
 			newArgc = 1;
 			myArgv[0] = sp = inBuffer;				// point to input string
+
 			for (i=1; i<MAX_ARGS; i++) myArgv[i] = 0;
+
+			printf("\n");
 
 			// parse input string
 			while ((sp = strchr(sp, ' ')))
 			{
-				*sp++ = 0;
+				printf("sp before: %s\n", sp);
+				*sp++ = 0; 
+				if(sp[0] == ' ') continue;
+
 				myArgv[newArgc++] = sp;
+				if(sp[0] == '\"') {
+					printf("Found \". sp: %s\n", sp);
+					sp = strchr(sp, '\"');
+					*sp++ = 0;
+				}
+				printf("sp after: %s\n", sp);
 			}
+
+			for(int i = 0; i < newArgc; i++){
+				printf("contents of argv at %d: %s\n", i, myArgv[i]);
+				printf("\t strlen(): %d\n", strlen(myArgv[i]));
+			}
+			for(int i = 0; i < newArgc; i++){
+				char* temp = malloc(strlen(myArgv[i]));
+				strcpy(temp, myArgv[i]);
+				myArgv[i] = temp;
+			}
+
 			newArgv = myArgv;
 		}
 		// ?? ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
