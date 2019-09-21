@@ -64,6 +64,12 @@ char* checkQuote(char* sp) {
 	return sp;
 }
 
+void strToLower(char* str) {
+	printf("Lowering string: %s\n", str);
+	for( ; *str; str++) *str = tolower(*str);
+	printf("lowered\n");
+}
+
 // ***********************************************************************
 // myShell - command line interpreter
 //
@@ -90,6 +96,8 @@ int P1_main(int argc, char* argv[])
 
 	while (1)
 	{
+		bool forked = 0;
+
 		// output prompt
 		if (diskMounted) printf("\n%s>>", dirPath);
 		else printf("\n%ld>>", swapCount);
@@ -129,14 +137,18 @@ int P1_main(int argc, char* argv[])
 			}
 
 			for(int i = 0; i < newArgc; i++){
+				char* temp = malloc(strlen(myArgv[i]));
+				strcpy(temp, myArgv[i]);
+				if(temp[0] !='\"') strToLower(temp);
+				myArgv[i] = temp;
+			}
+			
+			for(int i = 0; i < newArgc; i++){
 				printf("contents of argv at %d: %s\n", i, myArgv[i]);
 				printf("\t strlen(): %d\n", strlen(myArgv[i]));
 			}
-			for(int i = 0; i < newArgc; i++){
-				char* temp = malloc(strlen(myArgv[i]));
-				strcpy(temp, myArgv[i]);
-				myArgv[i] = temp;
-			}
+
+
 
 			newArgv = myArgv;
 		}
@@ -160,6 +172,7 @@ int P1_main(int argc, char* argv[])
 		// ?? free up any malloc'd argv parameters
 		for (i=0; i<INBUF_SIZE; i++) inBuffer[i] = 0;
 		for(i = 0; i < newArgc; i++) free(newArgv[i]);
+		if(forked) return 0;
 	}
 	return 0;						// terminate task
 } // end P1_shellTask
