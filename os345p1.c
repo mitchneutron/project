@@ -53,6 +53,17 @@ void mySigIntHandler(void)
 	printf("Hellomynameisinigomontoyayoukilledmyfatherpreparetodie");
 }
 
+char* checkQuote(char* sp) {
+	printf("Front of sp in qcheckquote: %c\n", sp[0]);
+	if(sp[0] == '\"') {
+		printf("Found \". sp: %s\n", sp);
+		//advance past the quotation mark
+		sp++;
+		return strchr(sp, '\"');
+	}
+	return sp;
+}
+
 // ***********************************************************************
 // myShell - command line interpreter
 //
@@ -100,7 +111,9 @@ int P1_main(int argc, char* argv[])
 
 			for (i=1; i<MAX_ARGS; i++) myArgv[i] = 0;
 
-			printf("\n");
+			printf("\nInput String: %s\n", inBuffer);
+
+			sp = checkQuote(sp);
 
 			// parse input string
 			while ((sp = strchr(sp, ' ')))
@@ -110,11 +123,8 @@ int P1_main(int argc, char* argv[])
 				if(sp[0] == ' ') continue;
 
 				myArgv[newArgc++] = sp;
-				if(sp[0] == '\"') {
-					printf("Found \". sp: %s\n", sp);
-					sp = strchr(sp, '\"');
-					*sp++ = 0;
-				}
+				printf("Front of sp: %c\n", sp[0]);
+				sp = checkQuote(sp);
 				printf("sp after: %s\n", sp);
 			}
 
@@ -149,10 +159,10 @@ int P1_main(int argc, char* argv[])
 
 		// ?? free up any malloc'd argv parameters
 		for (i=0; i<INBUF_SIZE; i++) inBuffer[i] = 0;
+		for(i = 0; i < newArgc; i++) free(newArgv[i]);
 	}
 	return 0;						// terminate task
 } // end P1_shellTask
-
 
 // ***********************************************************************
 // ***********************************************************************
